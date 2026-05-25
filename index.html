@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DT Finance — Onboarding Executivo</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0D1F3C;--navy2:#1A3260;--navy3:#243F78;
+  --gold:#C9A84C;--gold2:#E8C97A;--gold3:rgba(201,168,76,.12);
+  --cream:#F5F1E8;--cream2:#FDFBF6;
+  --gray:#8A94A6;--gray2:#EFF2F7;--gray3:#D5DAE4;
+  --green:#0F7B4B;--red:#C0392B;--white:#FFFFFF;
+  --text:#1E2A3A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
+
+/* ── LAYOUT ── */
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sb{background:var(--navy);display:flex;flex-direction:column;min-height:100vh}
+.sb-brand{padding:28px 24px 22px;border-bottom:1px solid rgba(255,255,255,.07)}
+.logo{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:#fff;letter-spacing:-.5px}
+.logo span{color:var(--gold)}
+.tagline{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:2.5px;text-transform:uppercase;margin-top:3px}
+.sb-sect{padding:20px 16px 8px}
+.sb-lbl{font-size:9px;color:rgba(255,255,255,.28);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding:0 8px}
+.nv{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:7px;font-size:12.5px;color:rgba(255,255,255,.5);cursor:pointer;transition:.2s;margin-bottom:1px}
+.nv:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.82)}
+.nv.on{background:rgba(201,168,76,.16);color:var(--gold2)}
+.nv-ico{width:16px;height:16px;flex-shrink:0;opacity:.8}
+.sb-foot{margin-top:auto;padding:18px 24px;border-top:1px solid rgba(255,255,255,.07);font-size:10px;color:rgba(255,255,255,.25);line-height:1.6}
+.sb-foot strong{color:var(--gold);display:block;margin-bottom:2px}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+
+/* ── TOPBAR ── */
+.top{background:var(--white);border-bottom:1px solid rgba(13,31,60,.09);padding:0 36px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.top-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600}
+.top-sub{font-size:11px;color:var(--gray);margin-top:1px}
+.top-acts{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:.2s;text-decoration:none;white-space:nowrap}
+.btn-gold{background:var(--gold);color:var(--navy)}
+.btn-gold:hover{background:var(--gold2)}
+.btn-ghost{background:transparent;border:1px solid rgba(13,31,60,.14);color:var(--text)}
+.btn-ghost:hover{background:var(--gray2)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── CONTENT ── */
+.content{flex:1;padding:32px 36px 60px;max-width:900px}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:2px dashed var(--gray3);border-radius:14px;padding:40px;text-align:center;cursor:pointer;transition:.25s;background:var(--white);margin-bottom:20px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold);background:var(--gold3)}
+.upload-icon{font-size:36px;margin-bottom:12px;opacity:.6}
+.upload-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--navy);margin-bottom:6px}
+.upload-sub{font-size:12.5px;color:var(--gray);line-height:1.5}
+.upload-input{display:none}
+
+/* ── CRM TABLE ── */
+.crm-card{background:var(--white);border-radius:14px;border:1px solid rgba(13,31,60,.08);margin-bottom:20px;overflow:hidden;box-shadow:0 2px 10px rgba(13,31,60,.04)}
+.crm-head{padding:18px 24px;border-bottom:1px solid rgba(13,31,60,.07);display:flex;align-items:center;justify-content:space-between}
+.crm-head-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600}
+.crm-head-sub{font-size:11px;color:var(--gray);margin-top:2px}
+.crm-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.crm-table th{padding:10px 16px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);background:var(--gray2);border-bottom:1px solid var(--gray3)}
+.crm-table td{padding:11px 16px;border-bottom:1px solid rgba(13,31,60,.05);vertical-align:middle}
+.crm-table tr:last-child td{border-bottom:none}
+.crm-table tr:hover td{background:rgba(201,168,76,.04)}
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10.5px;font-weight:500}
+.s-fechado{background:#EAF3DE;color:#27500A}
+.s-proposta{background:#FAEEDA;color:#633806}
+.s-novo{background:#EFF2F7;color:#475569}
+.s-negoc{background:#FAECE7;color:#712B13}
+.s-perdido{background:#FCEBEB;color:#791F1F}
+.btn-select{padding:6px 14px;border-radius:6px;font-size:11.5px;background:var(--gold);color:var(--navy);border:none;cursor:pointer;font-weight:600;font-family:'DM Sans',sans-serif;transition:.15s}
+.btn-select:hover{background:var(--gold2)}
+.btn-select:disabled{opacity:.35;cursor:not-allowed}
+.badge-fechado{display:inline-block;padding:2px 8px;background:var(--gold);color:var(--navy);border-radius:20px;font-size:9.5px;font-weight:700;margin-left:6px}
+
+/* ── FORM MANUAL ── */
+.form-card{background:var(--white);border-radius:14px;border:1px solid rgba(13,31,60,.08);padding:28px 28px;margin-bottom:20px;box-shadow:0 2px 10px rgba(13,31,60,.04)}
+.fc-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.fc-sub{font-size:12px;color:var(--gray);margin-bottom:22px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.frow.t3{grid-template-columns:1fr 1fr 1fr}
+.frow.f1{grid-template-columns:1fr}
+.ff label{display:block;font-size:10px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.9px;margin-bottom:6px}
+.ff input,.ff select,.ff textarea{width:100%;padding:9px 13px;border:1px solid var(--gray3);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--cream2);outline:none;transition:.2s}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.1)}
+.ff textarea{resize:vertical;min-height:80px;line-height:1.5}
+.ff input.filled{background:#EAF3DE;border-color:#C0DD97}
+.plano-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pc{border:2px solid var(--gray3);border-radius:10px;padding:16px;cursor:pointer;transition:.2s;position:relative}
+.pc:hover{border-color:var(--gold)}
+.pc.sel{border-color:var(--gold);background:var(--gold3)}
+.pc.sel::after{content:'✓';position:absolute;top:8px;right:10px;color:var(--gold);font-weight:700;font-size:13px}
+.pc-name{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:2px}
+.pc-sub{font-size:10.5px;color:var(--gray);margin-bottom:8px}
+.pc-price{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold3-dim,#7A6028);font-weight:500}
+
+/* ── LOADING ── */
+.load-wrap{display:none;flex-direction:column;align-items:center;gap:14px;padding:50px 20px}
+.load-wrap.vis{display:flex}
+.spin{width:36px;height:36px;border:2.5px solid rgba(201,168,76,.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-txt{font-family:'DM Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:1px}
+.load-dots{display:flex;gap:6px}
+.ld{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pulse 1.4s ease-in-out infinite}
+.ld:nth-child(2){animation-delay:.2s}.ld:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.prog-wrap{background:rgba(13,31,60,.08);border-radius:4px;height:3px;width:180px;overflow:hidden;margin-top:4px}
+.prog-fill{height:100%;background:var(--gold);border-radius:4px;width:0;transition:width .5s ease}
+
+/* ── OUTPUT ── */
+.out-wrap{display:none}
+.out-wrap.vis{display:block}
+.out-top{background:var(--navy);border-radius:14px 14px 0 0;padding:24px 30px;display:flex;align-items:flex-start;justify-content:space-between}
+.out-top h2{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff}
+.out-top p{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px}
+.out-acts{display:flex;gap:8px;flex-shrink:0}
+.bw{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;padding:7px 14px;border-radius:7px;font-size:11.5px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s}
+.bw:hover{background:rgba(255,255,255,.18)}
+.bg{background:var(--gold);color:var(--navy);border:none;padding:7px 16px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s}
+.bg:hover{background:var(--gold2)}
+.out-body{background:var(--white);border:1px solid rgba(13,31,60,.08);border-top:none;border-radius:0 0 14px 14px;min-height:300px}
+
+/* ── COVER ── */
+.cover{background:var(--navy);padding:40px 44px;border-radius:0;position:relative;overflow:hidden}
+.cover::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(201,168,76,.1) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.cov-dt{font-family:'Playfair Display',serif;font-size:12px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px}
+.cov-h{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:6px}
+.cov-seg{font-size:14px;color:var(--gold2);margin-bottom:24px}
+.cov-line{width:44px;height:2px;background:var(--gold);margin-bottom:24px}
+.cov-meta{display:flex;gap:40px;flex-wrap:wrap}
+.cm-lbl{font-size:9px;color:rgba(255,255,255,.32);text-transform:uppercase;letter-spacing:2px;margin-bottom:3px}
+.cm-val{font-family:'DM Mono',monospace;font-size:12.5px;color:#fff}
+
+/* ── ACCORDION ── */
+.acc-block{border-bottom:1px solid rgba(13,31,60,.06)}
+.acc-block:last-child{border-bottom:none}
+.acc-head{display:flex;align-items:center;gap:12px;padding:18px 28px;cursor:pointer;transition:background .18s;width:100%;background:transparent;border:none;text-align:left}
+.acc-head:hover{background:rgba(13,31,60,.02)}
+.acc-head.open{background:rgba(201,168,76,.04)}
+.acc-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);background:rgba(201,168,76,.12);padding:3px 8px;border-radius:5px;min-width:32px;text-align:center}
+.acc-ttl{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--navy);flex:1}
+.acc-chev{font-size:11px;color:var(--gray);transition:transform .22s}
+.acc-head.open .acc-chev{transform:rotate(180deg)}
+.acc-body{display:none;padding:4px 28px 24px 70px;font-size:13px;line-height:1.75;color:#2C3E50}
+.acc-body.open{display:block}
+.acc-body h3{font-family:'Playfair Display',serif;font-size:13.5px;color:var(--navy);margin:16px 0 7px;font-weight:600}
+.acc-body p{margin-bottom:9px}
+.acc-body ul,.acc-body ol{padding-left:18px;margin-bottom:11px}
+.acc-body li{margin-bottom:4px}
+.acc-body strong{color:var(--navy);font-weight:600}
+.acc-body em{color:#7A6028;font-style:normal;font-weight:500}
+.acc-body hr{border:none;border-top:1px solid rgba(13,31,60,.07);margin:14px 0}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:11px 18px;border-radius:9px;font-size:12.5px;border-left:3px solid var(--gold);display:none;z-index:999;animation:slideUp .28s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── BANNER ── */
+.banner{background:var(--navy);border-radius:12px;padding:26px 30px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.banner h1{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#fff;margin-bottom:5px}
+.banner p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.5;max-width:400px}
+
+/* ── PRINT ── */
+@media print{
+  .sb,.top,.upload-zone,.crm-card,.form-card,.btn,.bw,.bg,.banner{display:none!important}
+  .app{grid-template-columns:1fr}
+  .out-wrap{display:block!important}
+  .acc-body{display:block!important}
+  .out-top{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cover{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:40px 20px;color:var(--gray);font-size:13px}
+.empty-ico{font-size:32px;opacity:.4;margin-bottom:10px}
+
+/* ── ALERT ── */
+.alert{border-radius:9px;padding:12px 16px;font-size:12.5px;margin-bottom:16px;display:none}
+.alert.vis{display:block}
+.alert-info{background:#EFF6FF;border-left:3px solid #378ADD;color:#0C447C}
+.alert-success{background:#EAF3DE;border-left:3px solid #639922;color:#27500A}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-brand">
+    <div class="logo">DT<span>finance</span></div>
+    <div class="tagline">CFO as a Service</div>
+  </div>
+  <div class="sb-sect">
+    <div class="sb-lbl">Menu</div>
+    <div class="nv on" onclick="goView('main')">
+      <svg class="nv-ico" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Gerador de Onboarding
+    </div>
+    <div class="nv" onclick="goView('hist')">
+      <svg class="nv-ico" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Histórico
+    </div>
+  </div>
+  <div class="sb-sect">
+    <div class="sb-lbl">Segmento rápido</div>
+    <div class="nv" onclick="setSeg('Colchoaria / Varejo de Colchões')">Colchoaria</div>
+    <div class="nv" onclick="setSeg('Distribuição Alimentícia')">Distribuição Alim.</div>
+    <div class="nv" onclick="setSeg('Construção Civil')">Construção Civil</div>
+    <div class="nv" onclick="setSeg('Serviços de Tecnologia / SaaS')">Tecnologia / SaaS</div>
+    <div class="nv" onclick="setSeg('Indústria de Manufatura')">Indústria</div>
+    <div class="nv" onclick="setSeg('E-Commerce / Varejo Online')">E-Commerce</div>
+    <div class="nv" onclick="setSeg('Clínica Médica / Saúde')">Saúde / Clínica</div>
+    <div class="nv" onclick="setSeg('Agência de Marketing Digital')">Marketing Digital</div>
+  </div>
+  <div class="sb-foot">
+    <strong>DT Finance</strong>
+    Onboarding Executivo v2<br>
+    Thiago Inácio · Douglas Nascimento
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="top">
+    <div>
+      <div class="top-title">Onboarding Executivo Premium</div>
+      <div class="top-sub">Conectado ao CRM — cliente fecha, onboarding gerado automaticamente</div>
+    </div>
+    <div class="top-acts">
+      <button class="btn btn-ghost" onclick="window.print()">⎙ Imprimir</button>
+      <button class="btn btn-gold" onclick="gerar()" id="btnG">✦ Gerar Onboarding</button>
+    </div>
+  </div>
+
+  <!-- MAIN VIEW -->
+  <div class="content" id="vw-main">
+
+    <div class="banner">
+      <div>
+        <h1>Importe o CRM e gere o onboarding em 1 clique</h1>
+        <p>Faça upload do CRM_MASTER_DT_FINANCE_v2.xlsx. Os clientes com status Fechado aparecem prontos para gerar o onboarding.</p>
+      </div>
+    </div>
+
+    <!-- API KEY CONFIG -->
+    <div class="form-card" style="border-left:3px solid var(--gold);margin-bottom:20px">
+      <div class="fc-title">🔑 Configuração — Chave de API</div>
+      <div class="fc-sub">Necessário apenas uma vez. Sua chave fica salva no browser (localStorage). Obtenha em <strong>console.anthropic.com → API Keys</strong>.</div>
+      <div class="frow f1" style="margin-bottom:0">
+        <div class="ff" style="display:flex;gap:10px;align-items:flex-end">
+          <div style="flex:1">
+            <label>Chave Anthropic (sk-ant-...)</label>
+            <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off">
+          </div>
+          <button class="btn btn-gold" style="padding:9px 18px;height:38px;margin-bottom:0" onclick="salvarKey()">Salvar</button>
+          <button class="btn btn-ghost" style="padding:9px 14px;height:38px" onclick="testarKey()" id="btnTestKey">Testar</button>
+        </div>
+      </div>
+      <div id="keyStatus" style="font-size:11.5px;color:var(--gray);margin-top:10px">
+        💡 A chave é salva localmente no seu navegador e não é enviada para nenhum servidor além da Anthropic.
+      </div>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileIn').click()" ondragover="ev(event,'drag')" ondragleave="ev(event,'leave')" ondrop="ev(event,'drop')">
+      <div class="upload-icon">📂</div>
+      <div class="upload-title">Arrastar ou clicar para importar o CRM</div>
+      <div class="upload-sub">Selecione o arquivo <strong>CRM_MASTER_DT_FINANCE_v2.xlsx</strong><br>Compatível com qualquer versão do arquivo CRM DT Finance</div>
+      <input type="file" id="fileIn" class="upload-input" accept=".xlsx,.xls" onchange="handleFile(this)">
+    </div>
+
+    <!-- ALERT -->
+    <div class="alert alert-success" id="alertOk">✓ CRM importado com sucesso — <span id="alertTxt"></span></div>
+    <div class="alert alert-info" id="alertInfo">ℹ Nenhum cliente com status "Fechado" encontrado. Verifique o pipeline ou adicione manualmente abaixo.</div>
+
+    <!-- CRM TABLE -->
+    <div class="crm-card" id="crmCard" style="display:none">
+      <div class="crm-head">
+        <div>
+          <div class="crm-head-title">Clientes do Pipeline <span class="badge-fechado" id="cntFechado"></span></div>
+          <div class="crm-head-sub" id="crmSub">Selecione um cliente para pré-preencher o formulário</div>
+        </div>
+        <button class="btn btn-ghost" style="font-size:11px" onclick="document.getElementById('fileIn').click()">↺ Trocar arquivo</button>
+      </div>
+      <table class="crm-table">
+        <thead>
+          <tr>
+            <th>Empresa</th><th>Segmento</th><th>Plano</th>
+            <th>Responsável</th><th>Valor (R$)</th><th>Status</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="crmBody"></tbody>
+      </table>
+    </div>
+
+    <!-- FORM -->
+    <div class="form-card">
+      <div class="fc-title">
+        Dados do Cliente
+        <span style="font-family:'DM Mono',monospace;font-size:10px;background:var(--gold);color:var(--navy);padding:2px 8px;border-radius:20px;font-weight:500">Obrigatório</span>
+      </div>
+      <div class="fc-sub">Campos em verde foram preenchidos automaticamente pelo CRM. Complemente se necessário.</div>
+
+      <div class="frow">
+        <div class="ff"><label>Empresa</label><input id="f_emp" type="text" placeholder="Razão Social"></div>
+        <div class="ff"><label>Segmento</label><input id="f_seg" type="text" placeholder="Ex: Colchoaria, Construção Civil..."></div>
+      </div>
+      <div class="frow t3">
+        <div class="ff"><label>Faturamento Mensal</label><input id="f_fat" type="text" placeholder="Ex: R$ 850.000"></div>
+        <div class="ff"><label>Funcionários</label><input id="f_func" type="text" placeholder="Ex: 45"></div>
+        <div class="ff"><label>Tempo de Operação</label><input id="f_tempo" type="text" placeholder="Ex: 8 anos"></div>
+      </div>
+      <div class="frow">
+        <div class="ff">
+          <label>Responsável DT Finance</label>
+          <select id="f_resp">
+            <option value="Thiago Inácio">Thiago Inácio</option>
+            <option value="Douglas Nascimento">Douglas Nascimento</option>
+            <option value="Thiago Inácio & Douglas Nascimento">Ambos — Thiago & Douglas</option>
+          </select>
+        </div>
+        <div class="ff"><label>Cidade / Estado</label><input id="f_cid" type="text" placeholder="Ex: Sorocaba — SP"></div>
+      </div>
+
+      <div style="margin:16px 0 12px">
+        <div style="font-size:10px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.9px;margin-bottom:10px">Plano Contratado</div>
+        <div class="plano-grid">
+          <div class="pc" onclick="selPlano('Essencial — Financial Control',this)">
+            <div class="pc-name">Essencial</div>
+            <div class="pc-sub">Financial Control</div>
+            <div class="pc-price">R$ 1.500/mês</div>
+          </div>
+          <div class="pc sel" onclick="selPlano('Premium — Financial Growth',this)">
+            <div class="pc-name">Premium ✦</div>
+            <div class="pc-sub">Financial Growth</div>
+            <div class="pc-price">R$ 3.000/mês</div>
+          </div>
+          <div class="pc" onclick="selPlano('Executivo — Strategic CFO + Banking',this)">
+            <div class="pc-name">Executivo</div>
+            <div class="pc-sub">Strategic CFO + Banking</div>
+            <div class="pc-price">R$ 6.000/mês</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="frow f1" style="margin-top:14px">
+        <div class="ff"><label>Principais Dores / Desafios</label><textarea id="f_dor" placeholder="Ex: Sem DRE, caixa imprevisível, margens caindo, dificuldade de crédito..."></textarea></div>
+      </div>
+      <div class="frow f1">
+        <div class="ff"><label>Situação Financeira Atual</label><textarea id="f_sit" placeholder="Ex: 2 empréstimos ativos, faturamento crescendo mas lucro caindo..."></textarea></div>
+      </div>
+      <div class="frow">
+        <div class="ff"><label>Objetivo Principal</label><input id="f_obj" type="text" placeholder="Ex: Organizar financeiro, crescer 30% em 12 meses"></div>
+        <div class="ff"><label>Obs. Internas DT</label><input id="f_obs" type="text" placeholder="Ex: Indicado por parceiro, urgência em caixa"></div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:40px">
+      <button class="btn btn-gold" style="padding:13px 44px;font-size:13.5px" onclick="gerar()" id="btnG2">✦ &nbsp;Gerar Onboarding Executivo Completo</button>
+      <div style="font-size:11px;color:var(--gray);margin-top:8px">Powered by Claude AI · ~60 segundos</div>
+    </div>
+  </div>
+
+  <!-- HISTORICO VIEW -->
+  <div class="content" id="vw-hist" style="display:none">
+    <div class="form-card">
+      <div class="fc-title">Histórico de Onboardings</div>
+      <div class="fc-sub">Gerados nesta sessão do browser.</div>
+      <div id="hist-body" style="font-size:13px;color:var(--gray)">Nenhum gerado ainda.</div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="load-wrap" id="loading">
+    <div class="spin"></div>
+    <div class="load-txt" id="load-msg">GERANDO ONBOARDING EXECUTIVO</div>
+    <div class="load-dots"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog"></div></div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="content out-wrap" id="out-section" style="max-width:900px;padding-top:8px">
+    <div class="out-top" id="out-header">
+      <div>
+        <h2 id="out-title">Onboarding Executivo</h2>
+        <p id="out-sub">DT Finance · CFO as a Service · Confidencial</p>
+      </div>
+      <div class="out-acts">
+        <button class="bw" onclick="copiar()">⎘ Copiar texto</button>
+        <button class="bw" onclick="window.print()">⎙ Imprimir / PDF</button>
+        <button class="bg" onclick="novo()">+ Novo</button>
+      </div>
+    </div>
+    <div class="out-body">
+      <div id="coverArea"></div>
+      <div id="docSecs"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── API KEY ───────────────────────────────────────────────────────────────────
+// Cole sua chave Anthropic aqui (começa com sk-ant-...)
+// Obtenha em: https://console.anthropic.com/settings/api-keys
+const ANTHROPIC_API_KEY = '';
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let plano = 'Premium — Financial Growth';
+let rawText = '';
+let hist = [];
+let crmData = [];
+
+// ── API KEY UTILS ─────────────────────────────────────────────────────────────
+function salvarKey() {
+  const k = document.getElementById('apiKeyInput').value.trim();
+  if (!k.startsWith('sk-ant-')) {
+    toast('⚠ Chave inválida. Deve começar com sk-ant-', '#C0392B');
+    return;
+  }
+  localStorage.setItem('dt_api_key', k);
+  document.getElementById('keyStatus').innerHTML = '✅ <strong>Chave salva com sucesso</strong> — ficará disponível neste navegador.';
+  document.getElementById('keyStatus').style.color = '#27500A';
+  toast('✓ Chave de API salva');
+}
+
+async function testarKey() {
+  const k = document.getElementById('apiKeyInput').value.trim() || localStorage.getItem('dt_api_key') || ANTHROPIC_API_KEY;
+  if (!k) { toast('⚠ Digite a chave primeiro', '#C0392B'); return; }
+  const btn = document.getElementById('btnTestKey');
+  btn.disabled = true; btn.textContent = '⌛ Testando...';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': k,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 10, messages: [{ role: 'user', content: 'ok' }] })
+    });
+    if (res.ok || res.status === 400) {
+      document.getElementById('keyStatus').innerHTML = '✅ <strong>Chave válida e funcionando!</strong> Pode gerar onboardings.';
+      document.getElementById('keyStatus').style.color = '#27500A';
+      localStorage.setItem('dt_api_key', k);
+      toast('✓ Chave válida!');
+    } else {
+      throw new Error('HTTP ' + res.status);
+    }
+  } catch(e) {
+    document.getElementById('keyStatus').innerHTML = '❌ <strong>Erro:</strong> ' + e.message + ' — verifique a chave.';
+    document.getElementById('keyStatus').style.color = '#C0392B';
+    toast('Chave inválida: ' + e.message, '#C0392B');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Testar';
+  }
+}
+
+// Carregar chave salva ao iniciar
+(function() {
+  const saved = localStorage.getItem('dt_api_key');
+  if (saved) {
+    const inp = document.getElementById('apiKeyInput');
+    if (inp) {
+      inp.value = saved;
+      document.getElementById('keyStatus').innerHTML = '✅ <strong>Chave carregada</strong> — salva anteriormente neste navegador.';
+      document.getElementById('keyStatus').style.color = '#27500A';
+    }
+  }
+})();
+
+// ── UI UTILS ─────────────────────────────────────────────────────────────────
+function toast(msg, col) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderLeftColor = col || 'var(--gold)';
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3200);
+}
+function goView(v) {
+  document.querySelectorAll('.nv').forEach(n => n.classList.remove('on'));
+  event.currentTarget.classList.add('on');
+  document.getElementById('vw-main').style.display = v === 'main' ? 'block' : 'none';
+  document.getElementById('vw-hist').style.display = v === 'hist' ? 'block' : 'none';
+  if (v === 'hist') renderHist();
+}
+function setQ(id, val, green) {
+  const el = document.getElementById(id);
+  el.value = val || '';
+  if (green && val) el.classList.add('filled'); else el.classList.remove('filled');
+}
+function setSeg(s) { setQ('f_seg', s); toast('Segmento: ' + s); }
+function selPlano(p, el) {
+  plano = p;
+  document.querySelectorAll('.pc').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function novo() {
+  document.getElementById('out-section').classList.remove('vis');
+  document.getElementById('loading').classList.remove('vis');
+  window.scrollTo(0, 0);
+}
+function copiar() {
+  navigator.clipboard.writeText(rawText).then(() => toast('✓ Copiado para área de transferência'));
+}
+
+// ── FILE IMPORT (SheetJS) ────────────────────────────────────────────────────
+function ev(e, type) {
+  e.preventDefault();
+  const z = document.getElementById('dropZone');
+  if (type === 'drag') z.classList.add('drag');
+  else if (type === 'leave') z.classList.remove('drag');
+  else if (type === 'drop') {
+    z.classList.remove('drag');
+    const f = e.dataTransfer.files[0];
+    if (f) readXlsx(f);
+  }
+}
+function handleFile(inp) {
+  if (inp.files[0]) readXlsx(inp.files[0]);
+}
+
+function readXlsx(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      // Try to find PIPELINE_COMERCIAL sheet
+      const sheetName = wb.SheetNames.find(n => n.includes('PIPELINE') || n.includes('pipeline')) || wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+      if (!data.length) { toast('Planilha vazia ou formato não reconhecido', '#C0392B'); return; }
+
+      // Normalize keys — find columns flexibly
+      crmData = data.map(row => {
+        const keys = Object.keys(row);
+        const find = (...terms) => {
+          const k = keys.find(k => terms.some(t => k.toLowerCase().includes(t.toLowerCase())));
+          return k ? String(row[k] || '').trim() : '';
+        };
+        return {
+          empresa:     find('empresa','company','razão','nome'),
+          segmento:    find('segmento','setor','segment'),
+          planoRow:    find('plano','plan'),
+          responsavel: find('responsável','resp','owner','consultor'),
+          valor:       find('valor','value','ticket','mrr'),
+          status:      find('status','fase','stage'),
+          obs:         find('observ','obs','nota','note'),
+        };
+      }).filter(r => r.empresa);
+
+      const fechados = crmData.filter(r => r.status.toLowerCase().includes('fechado'));
+      const total = crmData.length;
+
+      document.getElementById('alertOk').classList.add('vis');
+      document.getElementById('alertTxt').textContent = `${total} clientes encontrados, ${fechados.length} fechados prontos para onboarding`;
+      document.getElementById('alertInfo').classList.toggle('vis', fechados.length === 0);
+      document.getElementById('crmCard').style.display = 'block';
+      document.getElementById('cntFechado').textContent = fechados.length + ' fechados';
+      document.getElementById('crmSub').textContent = `${total} clientes no pipeline · Selecione para pré-preencher o formulário`;
+
+      renderTable(crmData);
+      toast(`✓ ${total} clientes importados`);
+    } catch (err) {
+      toast('Erro ao ler o arquivo: ' + err.message, '#C0392B');
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function statusClass(s) {
+  const sl = (s || '').toLowerCase();
+  if (sl.includes('fechado')) return 's-fechado';
+  if (sl.includes('proposta')) return 's-proposta';
+  if (sl.includes('negoc')) return 's-negoc';
+  if (sl.includes('perdido')) return 's-perdido';
+  return 's-novo';
+}
+
+function renderTable(data) {
+  const body = document.getElementById('crmBody');
+  body.innerHTML = data.map((r, i) => {
+    const isFechado = (r.status || '').toLowerCase().includes('fechado');
+    const valFmt = r.valor ? 'R$ ' + Number(String(r.valor).replace(/[^\d.,]/g,'')).toLocaleString('pt-BR') : '—';
+    return `<tr>
+      <td><strong>${r.empresa || '—'}</strong></td>
+      <td>${r.segmento || '—'}</td>
+      <td style="font-size:11.5px">${r.planoRow || '—'}</td>
+      <td style="font-size:11.5px">${r.responsavel || '—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11.5px">${isNaN(Number(String(r.valor).replace(/[^\d.,]/,''))) ? r.valor || '—' : valFmt}</td>
+      <td><span class="status-pill ${statusClass(r.status)}">${r.status || '—'}</span></td>
+      <td><button class="btn-select" onclick="preencherForm(${i})" ${!isFechado ? 'style="opacity:.4;cursor:default" title="Só clientes Fechados"' : ''} ${!isFechado ? 'disabled' : ''}>Selecionar</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function preencherForm(idx) {
+  const r = crmData[idx];
+  setQ('f_emp', r.empresa, true);
+  setQ('f_seg', r.segmento, true);
+  setQ('f_obs', r.obs, true);
+  // Responsável
+  const sel = document.getElementById('f_resp');
+  const rv = (r.responsavel || '').toLowerCase();
+  if (rv.includes('thiago') && rv.includes('douglas')) sel.value = 'Thiago Inácio & Douglas Nascimento';
+  else if (rv.includes('douglas')) sel.value = 'Douglas Nascimento';
+  else sel.value = 'Thiago Inácio';
+  // Plano
+  const pv = (r.planoRow || '').toLowerCase();
+  let pLabel = 'Premium — Financial Growth';
+  if (pv.includes('essencial') || pv.includes('essential') || pv.includes('control')) pLabel = 'Essencial — Financial Control';
+  else if (pv.includes('execut') || pv.includes('cfo') || pv.includes('banking')) pLabel = 'Executivo — Strategic CFO + Banking';
+  plano = pLabel;
+  document.querySelectorAll('.pc').forEach((c, i) => {
+    c.classList.remove('sel');
+    if ((i===0 && pLabel.startsWith('Essencial')) || (i===1 && pLabel.startsWith('Premium')) || (i===2 && pLabel.startsWith('Executivo'))) c.classList.add('sel');
+  });
+
+  toast(`✓ Dados de "${r.empresa}" carregados`);
+  document.getElementById('f_emp').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── PROMPT BUILDER ────────────────────────────────────────────────────────────
+function buildPrompt(d) {
+  return `Você é o CFO as a Service estratégico da DT Finance — consultoria financeira premium para PMEs brasileiras.
+
+Crie um ONBOARDING EXECUTIVO PREMIUM completo para:
+EMPRESA: ${d.emp || 'Cliente DT Finance'}
+SEGMENTO: ${d.seg}
+FATURAMENTO MENSAL: ${d.fat || 'não informado'}
+FUNCIONÁRIOS: ${d.func || 'não informado'}
+TEMPO DE OPERAÇÃO: ${d.tempo || 'não informado'}
+PLANO: ${d.plano}
+RESPONSÁVEL DT: ${d.resp}
+CIDADE: ${d.cid || 'não informada'}
+DORES: ${d.dor || 'não informadas'}
+SITUAÇÃO FINANCEIRA: ${d.sit || 'não informada'}
+OBJETIVO: ${d.obj || 'não informado'}
+OBSERVAÇÕES: ${d.obs || 'nenhuma'}
+
+Estrutura OBRIGATÓRIA — use exatamente estes marcadores:
+
+### SEÇÃO 1: BOAS-VINDAS EXECUTIVA
+[Mensagem premium, sofisticada e calorosa. Mencione a empresa, segmento e o compromisso da DT Finance com o crescimento do cliente. Tom: boutique financeira de alto padrão.]
+
+### SEÇÃO 2: OBJETIVOS DO PROJETO
+[6 objetivos estratégicos do projeto, explicados com profundidade, personalizados para ${d.seg}.]
+
+### SEÇÃO 3: DIAGNÓSTICO INICIAL — PERGUNTAS ESTRATÉGICAS
+[12 perguntas estratégicas específicas para ${d.seg}. Cada pergunta com breve explicação do que ela revela financeiramente.]
+
+### SEÇÃO 4: CHECKLIST DOCUMENTAL
+[Mínimo 30 itens organizados em grupos: Contabilidade & Fiscal | Bancário & Financeiro | Operacional & Controles | Contratos & Jurídico | Societário. Personalizado para ${d.seg}.]
+
+### SEÇÃO 5: KPIs ESTRATÉGICOS DO SEGMENTO
+[10 KPIs críticos para ${d.seg}. Para cada: nome, definição, fórmula, benchmark ideal, impacto e ação quando fora do parâmetro.]
+
+### SEÇÃO 6: ESTRUTURA DO BI EXECUTIVO
+[Dashboard ideal para ${d.seg}: (a) Página executiva, (b) DRE gerencial, (c) Fluxo de caixa, (d) Análise de despesas, (e) Indicadores do segmento, (f) Plano de ação. Para cada: gráficos ideais, alertas e decisões que suporta.]
+
+### SEÇÃO 7: RISCOS FINANCEIROS DO SEGMENTO
+[8 riscos financeiros de ${d.seg}. Classificação: CRÍTICO / ALTO / MODERADO. Para cada: causa, impacto estimado, sinal de alerta e ação preventiva.]
+
+### SEÇÃO 8: OPORTUNIDADES ESTRATÉGICAS
+[6 oportunidades concretas para ${d.seg}. Para cada: descrição, potencial de ganho (%), prazo e como a DT Finance apoia a execução.]
+
+### SEÇÃO 9: CRONOGRAMA DE IMPLANTAÇÃO — 4 SEMANAS
+[Semana 1: Diagnóstico. Semana 2: Organização financeira e DRE. Semana 3: BI e indicadores. Semana 4: Validação e plano de ação. Cada semana: atividades, entregas, responsáveis e critérios de sucesso.]
+
+### SEÇÃO 10: ROTINA DE ACOMPANHAMENTO EXECUTIVO
+[Rotina mensal completa adaptada ao plano ${d.plano}: reuniões, dashboards, indicadores monitorados, revisões trimestrais. Posicionar a DT como CFO estratégico.]
+
+### SEÇÃO 11: EXPERIÊNCIA PREMIUM DT FINANCE
+[Como a DT deve comunicar, apresentar resultados, conduzir reuniões e gerar percepção de valor premium para este cliente específico.]
+
+REGRAS:
+- Profundo, estratégico, altamente consultivo
+- Linguagem executiva — nunca genérico
+- Personalize TODO o conteúdo para ${d.seg}
+- Benchmarks e percentuais reais do setor
+- Tom: boutique financeira + CFO experiente`;
+}
+
+// ── GERAR ─────────────────────────────────────────────────────────────────────
+async function gerar() {
+  const d = {
+    emp:   document.getElementById('f_emp').value.trim(),
+    seg:   document.getElementById('f_seg').value.trim(),
+    fat:   document.getElementById('f_fat').value.trim(),
+    func:  document.getElementById('f_func').value.trim(),
+    tempo: document.getElementById('f_tempo').value.trim(),
+    resp:  document.getElementById('f_resp').value,
+    cid:   document.getElementById('f_cid').value.trim(),
+    dor:   document.getElementById('f_dor').value.trim(),
+    sit:   document.getElementById('f_sit').value.trim(),
+    obj:   document.getElementById('f_obj').value.trim(),
+    obs:   document.getElementById('f_obs').value.trim(),
+    plano,
+  };
+
+  if (!d.seg) { toast('⚠ Preencha o segmento de atuação.', '#C0392B'); document.getElementById('f_seg').focus(); return; }
+
+  // Resolve API key: campo na tela tem prioridade, depois localStorage, depois constante no topo
+  const apiKey = (document.getElementById('apiKeyInput')?.value?.trim()) || localStorage.getItem('dt_api_key') || ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    toast('⚠ Insira sua chave de API Anthropic no campo de configuração.', '#C0392B');
+    document.getElementById('apiKeyInput')?.focus();
+    document.getElementById('apiKeyInput')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  ['btnG','btnG2'].forEach(id => { const b = document.getElementById(id); if(b){b.disabled=true;b.textContent='⌛ Gerando...';} });
+
+  document.getElementById('vw-main').style.display = 'none';
+  document.getElementById('out-section').classList.remove('vis');
+  const load = document.getElementById('loading');
+  load.classList.add('vis');
+  window.scrollTo(0, load.offsetTop - 80);
+
+  const pb = document.getElementById('prog');
+  let pv = 0;
+  const msgs = ['ANALISANDO SEGMENTO','MAPEANDO KPIs','ESTRUTURANDO DIAGNÓSTICO','MONTANDO CHECKLIST','GERANDO CRONOGRAMA','FINALIZANDO'];
+  let mi = 0;
+  const iv = setInterval(() => {
+    pv = Math.min(pv + 1.3, 88);
+    pb.style.width = pv + '%';
+    if (pv > mi * 16 && mi < msgs.length) document.getElementById('load-msg').textContent = msgs[mi++];
+  }, 600);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8000,
+        messages: [{ role: 'user', content: buildPrompt(d) }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'HTTP ' + res.status);
+    }
+
+    const data = await res.json();
+    const txt = (data.content || []).filter(c => c.type === 'text').map(c => c.text).join('');
+    rawText = txt;
+
+    hist.unshift({ emp: d.emp || 'Cliente', seg: d.seg, plano, data: new Date().toLocaleDateString('pt-BR'), txt, d });
+    clearInterval(iv);
+    pb.style.width = '100%';
+    setTimeout(() => {
+      load.classList.remove('vis');
+      renderOut(txt, d);
+    }, 350);
+
+  } catch (err) {
+    clearInterval(iv);
+    load.classList.remove('vis');
+    document.getElementById('vw-main').style.display = 'block';
+    let msg = err.message;
+    if (msg.includes('401') || msg.includes('auth')) msg = 'Chave de API inválida ou não autorizada.';
+    else if (msg.includes('529') || msg.includes('overload')) msg = 'API sobrecarregada. Tente em instantes.';
+    toast('Erro: ' + msg, '#C0392B');
+    console.error(err);
+  } finally {
+    ['btnG','btnG2'].forEach(id => {
+      const b = document.getElementById(id);
+      if(b){b.disabled=false;b.textContent=id==='btnG'?'✦ Gerar Onboarding':'✦  Gerar Onboarding Executivo Completo';}
+    });
+  }
+}
+
+// ── RENDER OUTPUT ─────────────────────────────────────────────────────────────
+function renderOut(text, d) {
+  const emp = d.emp || 'Cliente DT Finance';
+  const hoje = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+
+  document.getElementById('out-title').textContent = `Onboarding Executivo · ${emp}`;
+  document.getElementById('out-sub').textContent = `${d.seg} · ${plano.split('—')[0].trim()} · DT Finance · Confidencial`;
+
+  document.getElementById('coverArea').innerHTML = `
+    <div class="cover">
+      <div class="cov-dt">DT Finance · CFO as a Service</div>
+      <div class="cov-h">Onboarding Executivo<br>Premium</div>
+      <div class="cov-seg">${d.seg}${emp !== 'Cliente DT Finance' ? ' · ' + emp : ''}</div>
+      <div class="cov-line"></div>
+      <div class="cov-meta">
+        <div><div class="cm-lbl">Plano</div><div class="cm-val">${plano.split('—')[0].trim()}</div></div>
+        <div><div class="cm-lbl">Responsável</div><div class="cm-val">${d.resp}</div></div>
+        <div><div class="cm-lbl">Emitido em</div><div class="cm-val">${hoje}</div></div>
+        ${d.cid ? `<div><div class="cm-lbl">Localização</div><div class="cm-val">${d.cid}</div></div>` : ''}
+      </div>
+    </div>`;
+
+  const titles = [
+    'Boas-Vindas Executiva','Objetivos do Projeto',
+    'Diagnóstico Inicial — Perguntas Estratégicas','Checklist Documental',
+    'KPIs Estratégicos do Segmento','Estrutura do BI Executivo',
+    'Riscos Financeiros do Segmento','Oportunidades Estratégicas',
+    'Cronograma de Implantação — 4 Semanas',
+    'Rotina de Acompanhamento Executivo','Experiência Premium DT Finance'
+  ];
+
+  const parts = text.split(/###\s+SEÇÃO\s+\d+:/);
+  parts.shift();
+
+  const cont = document.getElementById('docSecs');
+  cont.innerHTML = '';
+
+  parts.forEach((part, i) => {
+    const title = titles[i] || `Seção ${i+1}`;
+    const body = part.replace(/^[^\n]*\n/, '').trim();
+    const block = document.createElement('div');
+    block.className = 'acc-block';
+    const isOpen = i < 2;
+    block.innerHTML = `
+      <button class="acc-head ${isOpen ? 'open' : ''}" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+        <span class="acc-num">0${i+1}</span>
+        <span class="acc-ttl">${title}</span>
+        <span class="acc-chev">▾</span>
+      </button>
+      <div class="acc-body ${isOpen ? 'open' : ''}">${fmt(body)}</div>`;
+    cont.appendChild(block);
+  });
+
+  document.getElementById('out-section').classList.add('vis');
+  document.getElementById('out-section').scrollIntoView({ behavior: 'smooth' });
+  toast('✦ Onboarding gerado com sucesso!');
+}
+
+function fmt(t) {
+  return t
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/^####\s+(.+)$/gm,'<h4 style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin:14px 0 5px">$1</h4>')
+    .replace(/^###\s+(.+)$/gm,'<h3>$1</h3>')
+    .replace(/^##\s+(.+)$/gm,'<h3>$1</h3>')
+    .replace(/^---+$/gm,'<hr>')
+    .replace(/^[-•]\s+(.+)$/gm,'<li>$1</li>')
+    .replace(/^\d+\.\s+(.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>[\s\S]+?<\/li>)/g, m => `<ul>${m}</ul>`)
+    .split('\n\n').map(p => {
+      p = p.trim();
+      if (!p || p.startsWith('<')) return p;
+      return `<p>${p}</p>`;
+    }).join('');
+}
+
+// ── HISTORICO ─────────────────────────────────────────────────────────────────
+function renderHist() {
+  const el = document.getElementById('hist-body');
+  if (!hist.length) { el.innerHTML = '<p>Nenhum onboarding gerado nesta sessão.</p>'; return; }
+  el.innerHTML = hist.map((h, i) => `
+    <div style="border:1px solid rgba(13,31,60,.08);border-radius:9px;padding:13px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-weight:600;font-size:13.5px;color:var(--navy)">${h.emp}</div>
+        <div style="font-size:11px;color:var(--gray)">${h.seg} · ${h.plano.split('—')[0].trim()} · ${h.data}</div>
+      </div>
+      <button class="btn btn-ghost" style="font-size:11px" onclick="verHist(${i})">Ver</button>
+    </div>`).join('');
+}
+function verHist(i) {
+  const h = hist[i];
+  rawText = h.txt;
+  plano = h.plano;
+  document.getElementById('vw-hist').style.display = 'none';
+  document.getElementById('vw-main').style.display = 'none';
+  renderOut(h.txt, h.d);
+}
+
+window.onbeforeprint = () => document.querySelectorAll('.acc-body').forEach(el => el.classList.add('open'));
+</script>
+</body>
+</html>
