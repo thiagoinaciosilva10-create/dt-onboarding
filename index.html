@@ -451,7 +451,7 @@ async function testarKey() {
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 10, messages: [{ role: 'user', content: 'ok' }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 10, messages: [{ role: 'user', content: 'ok' }] })
     });
     if (res.ok || res.status === 400) {
       document.getElementById('keyStatus').innerHTML = '✅ <strong>Chave válida e funcionando!</strong> Pode gerar onboardings.';
@@ -777,7 +777,7 @@ async function gerar() {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 8000,
         messages: [{ role: 'user', content: buildPrompt(d) }]
       })
