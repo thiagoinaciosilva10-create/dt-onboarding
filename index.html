@@ -542,9 +542,33 @@ function readXlsx(file) {
       // Try to find PIPELINE_COMERCIAL sheet
       const sheetName = wb.SheetNames.find(n => n.includes('PIPELINE') || n.includes('pipeline')) || wb.SheetNames[0];
       const ws = wb.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
 
-      if (!data.length) { toast('Planilha vazia ou formato não reconhecido', '#C0392B'); return; }
+      // Convert to array of arrays to find the real header row
+      const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+      // Find the row that contains column headers (has "Empresa" or "Status")
+      const headerRowIdx = raw.findIndex(row =>
+        row.some(cell => {
+          const s = String(cell).toLowerCase().trim();
+          return s === 'empresa' || s === 'status' || s === 'lead';
+        })
+      );
+
+      if (headerRowIdx === -1) { toast('Cabeçalho da planilha não encontrado. Verifique o arquivo.', '#C0392B'); return; }
+
+      const headers = raw[headerRowIdx].map(h => String(h).trim());
+      const dataRows = raw.slice(headerRowIdx + 1);
+
+      // Build objects from data rows using real headers
+      const data = dataRows
+        .filter(row => row.some(cell => cell !== ''))
+        .map(row => {
+          const obj = {};
+          headers.forEach((h, i) => { obj[h] = String(row[i] || '').trim(); });
+          return obj;
+        });
+
+      if (!data.length) { toast('Nenhum dado encontrado na planilha.', '#C0392B'); return; }
 
       // Normalize keys — find columns flexibly
       crmData = data.map(row => {
@@ -558,11 +582,11 @@ function readXlsx(file) {
           segmento:    find('segmento','setor','segment'),
           planoRow:    find('plano','plan'),
           responsavel: find('responsável','resp','owner','consultor'),
-          valor:       find('valor','value','ticket','mrr'),
+          valor:       find('valor potencial','valor','value','ticket','mrr'),
           status:      find('status','fase','stage'),
           obs:         find('observ','obs','nota','note'),
         };
-      }).filter(r => r.empresa);
+      }).filter(r => r.empresa && r.empresa !== '');
 
       const fechados = crmData.filter(r => r.status.toLowerCase().includes('fechado'));
       const total = crmData.length;
